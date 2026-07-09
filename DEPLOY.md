@@ -22,10 +22,9 @@ OneFocus est un process Node unique (Express) qui sert aussi les fichiers statiq
      - onefocus_data:/app/data
      - ./serviceAccountKey.json:/app/server/fcm/serviceAccountKey.json:ro
    ```
-5. Authentifie Docker sur GHCR si le package est privé :
-   ```bash
-   echo $GHCR_TOKEN | docker login ghcr.io -u <user> --password-stdin
-   ```
+5. **Rends le package GHCR public** — sinon `docker compose pull` sur le VPS échoue avec `error from registry: denied` (les packages GHCR sont privés par défaut, et l'image ne contient pas de secrets : les clés/env sont injectées via `.env` au runtime, jamais buildées dedans) :
+   GitHub → onglet **Packages** → `onefocusapp` → **Package settings** → **Danger Zone** → **Change visibility** → **Public**.
+   (Alternative si tu préfères le garder privé : authentifier le VPS avec `echo $GHCR_TOKEN | docker login ghcr.io -u <user> --password-stdin`, `$GHCR_TOKEN` étant un Personal Access Token avec le scope `read:packages`.)
 6. Premier démarrage manuel :
    ```bash
    docker compose pull && docker compose up -d
