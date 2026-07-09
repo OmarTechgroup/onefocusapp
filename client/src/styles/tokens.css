@@ -1,0 +1,66 @@
+:root {
+  --color-bg: #0a0806;
+  --color-bg-elevated: #14100b;
+  --color-bg-card: #1a1510;
+  --color-border: #2a221a;
+  --color-text: #f2ece2;
+  --color-text-dim: #a89c8c;
+  --color-text-faint: #6b6156;
+
+  --color-accent: #f59e0b;
+  --color-accent-dim: #92600a;
+  --color-accent-glow: rgba(245, 158, 11, 0.35);
+
+  --color-red: #ef4444;
+  --color-orange: #f97316;
+  --color-yellow: #eab308;
+  --color-neutral: #64748b;
+  --color-green: #22c55e;
+  --color-cyan: #22d3ee;
+  --color-violet: #a78bfa;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'Manrope', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --nav-height: 64px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --color-bg: #faf7f2;
+  --color-bg-elevated: #ffffff;
+  --color-bg-card: #ffffff;
+  --color-border: #e8e0d4;
+  --color-text: #1c1712;
+  --color-text-dim: #6b6156;
+  --color-text-faint: #9a8f80;
+  --color-accent-glow: rgba(245, 158, 11, 0.18);
+  --shadow-card: 0 8px 30px rgba(28, 23, 18, 0.08);
+  color-scheme: light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

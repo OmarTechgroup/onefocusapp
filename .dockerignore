@@ -1,0 +1,12 @@
+node_modules
+client/node_modules
+client/dist
+data
+.git
+.env
+.env.local
+server/fcm/serviceAccountKey.json
+*.log
+.claude
+newfeature.md
+prompt.md

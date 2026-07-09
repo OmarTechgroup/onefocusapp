@@ -1,0 +1,87 @@
+# Déploiement
+
+OneFocus est un process Node unique (Express) qui sert aussi les fichiers statiques du client buildé (`client/dist`) — donc les deux chemins de déploiement ci-dessous partent du même artefact, juste packagés différemment.
+
+## Option A — VPS avec Docker + CI/CD (GitHub Actions)
+
+### Prérequis sur le VPS
+- Docker + Docker Compose plugin installés
+- Un répertoire de déploiement, ex. `/opt/onefocus`
+
+### Mise en place initiale (une fois)
+
+1. Sur le VPS :
+   ```bash
+   mkdir -p /opt/onefocus && cd /opt/onefocus
+   ```
+2. Copie `docker-compose.yml` et `.env` (rempli à partir de `.env.example`) dans ce dossier. `.env` reste sur le serveur, jamais commité.
+3. Dans `docker-compose.yml`, remplace `ghcr.io/OWNER/REPO:latest` par ton dépôt GitHub réel (en minuscules), ex. `ghcr.io/adrien/onefocus:latest`.
+4. Si tu utilises `firebase-admin` via fichier de clé plutôt que la variable `FIREBASE_SERVICE_ACCOUNT_JSON`, monte-le en volume :
+   ```yaml
+   volumes:
+     - onefocus_data:/app/data
+     - ./serviceAccountKey.json:/app/server/fcm/serviceAccountKey.json:ro
+   ```
+5. Authentifie Docker sur GHCR si le package est privé :
+   ```bash
+   echo $GHCR_TOKEN | docker login ghcr.io -u <user> --password-stdin
+   ```
+6. Premier démarrage manuel :
+   ```bash
+   docker compose pull && docker compose up -d
+   docker compose exec app node server/db/init.js   # optionnel : données de démo
+   ```
+
+### Secrets GitHub à configurer (Settings → Secrets and variables → Actions)
+
+| Secret | Description |
+|---|---|
+| `VPS_HOST` | IP ou domaine du VPS |
+| `VPS_USER` | utilisateur SSH (avec accès Docker) |
+| `VPS_SSH_KEY` | clé privée SSH correspondante |
+| `VPS_PORT` | (optionnel) port SSH, 22 par défaut |
+| `VPS_PATH` | (optionnel) chemin du dossier de déploiement, `/opt/onefocus` par défaut |
+
+`GITHUB_TOKEN` (fourni automatiquement par Actions) suffit pour pousser l'image sur GHCR — aucun secret supplémentaire requis pour le registre.
+
+### Pipeline
+
+- **`.github/workflows/ci.yml`** — sur chaque push/PR : installe les dépendances serveur + client, lance les tests serveur, vérifie que le client build sans erreur.
+- **`.github/workflows/deploy.yml`** — après un CI réussi sur `main` : build l'image Docker, la pousse sur `ghcr.io/<owner>/<repo>`, puis se connecte en SSH au VPS pour `docker compose pull && docker compose up -d`.
+
+### Build/test local avant de pousser
+
+```bash
+docker compose up --build
+curl http://localhost:3900/api/health
+```
+
+### Persistance des données
+
+La base SQLite vit dans le volume nommé `onefocus_data` (chemin `/app/data/onefocus.db` dans le conteneur, configurable via `DB_PATH`). Elle survit aux redéploiements/`docker compose pull`.
+
+---
+
+## Option B — o2switch (mutualisé, sans Docker)
+
+o2switch propose un "Setup Node.js App" (cPanel) basé sur Passenger — pas d'accès Docker, donc ce chemin reste indépendant du pipeline ci-dessus.
+
+1. **Builder le client en local** (o2switch ne lance pas Vite) :
+   ```bash
+   npm run build --prefix client
+   ```
+2. Uploader tout le repo (avec `client/dist/` généré) sur o2switch, hors `node_modules` et `data/`.
+3. Dans cPanel → **Setup Node.js App** :
+   - **Application root** : le dossier racine du projet (celui contenant `server/`)
+   - **Application startup file** : `server/index.js`
+   - **Node.js version** : ≥ 22.5 (requis par `node:sqlite`, voir `server/db/index.js`) — si non disponible sur o2switch, il faudra remplacer cette dépendance par `better-sqlite3` (compilation native, voir commentaire dans `server/db/index.js`)
+4. Renseigner les variables d'environnement via l'interface cPanel (mêmes clés que `.env.example`).
+5. Lancer `npm install` (bouton cPanel, ou terminal) — uniquement les dépendances racine (serveur), le client est déjà buildé en statique.
+6. `node server/db/init.js` une fois pour créer/peupler la base (ou laisser `db.migrate()` créer le schéma vide au premier démarrage).
+7. Démarrer/redémarrer l'app depuis cPanel.
+
+Le serveur sert automatiquement `client/dist/` via `express.static` (voir `server/index.js`) — même artefact que celui packagé dans l'image Docker.
+
+### Limite connue
+
+`server/db/index.js` utilise `node:sqlite`, expérimental et disponible seulement à partir de Node 22.5+. Vérifie la version Node proposée par o2switch avant de déployer ; si elle est trop ancienne, c'est le seul point à adapter (migration vers `better-sqlite3`, qui nécessite un compilateur C++ — généralement indisponible en mutualisé, donc à tester au cas par cas).

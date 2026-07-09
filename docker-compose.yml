@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Locally: `docker compose up --build` builds this and tags it with the name below.
+    # On the VPS: `docker compose pull` fetches the image CI already built and pushed —
+    # replace OWNER/REPO with your GitHub org/repo (see DEPLOY.md).
+    image: ghcr.io/OWNER/REPO:latest
+    container_name: onefocus
+    restart: unless-stopped
+    ports:
+      - "3900:3900"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3900
+      DB_PATH: /app/data/onefocus.db
+    volumes:
+      - onefocus_data:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3900/api/health').then(r=>{if(!r.ok)throw new Error()}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  onefocus_data:
