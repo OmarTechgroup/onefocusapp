@@ -8,11 +8,11 @@
     "node": ">=22.5.0"
   },
   "scripts": {
-    "dev": "concurrently -k -n server,client -c blue,green \"node --watch server/index.js\" \"npm run dev --prefix client\"",
-    "start": "node server/index.js",
-    "db:init": "node server/db/init.js",
+    "dev": "concurrently -k -n server,client -c blue,green \"node --experimental-sqlite --watch server/index.js\" \"npm run dev --prefix client\"",
+    "start": "node --experimental-sqlite server/index.js",
+    "db:init": "node --experimental-sqlite server/db/init.js",
     "build": "npm run build --prefix client",
-    "test": "node --test server/tests/*.test.js"
+    "test": "node --experimental-sqlite --test server/tests/*.test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

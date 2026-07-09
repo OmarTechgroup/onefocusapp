@@ -75,7 +75,7 @@ o2switch propose un "Setup Node.js App" (cPanel) basé sur Passenger — pas d'a
    - **Application root** : le dossier racine du projet (celui contenant `server/`)
    - **Application startup file** : `server/index.js`
    - **Node.js version** : ≥ 22.5 (requis par `node:sqlite`, voir `server/db/index.js`) — si non disponible sur o2switch, il faudra remplacer cette dépendance par `better-sqlite3` (compilation native, voir commentaire dans `server/db/index.js`)
-4. Renseigner les variables d'environnement via l'interface cPanel (mêmes clés que `.env.example`).
+4. Renseigner les variables d'environnement via l'interface cPanel (mêmes clés que `.env.example`), **plus** `NODE_OPTIONS=--experimental-sqlite` — Passenger lance `server/index.js` directement sans passer par `npm start`, donc c'est la seule façon de faire passer ce flag sans pouvoir éditer la commande de démarrage (`node:sqlite`, utilisé par `server/db/index.js`, l'exige sur Node 22.x).
 5. Lancer `npm install` (bouton cPanel, ou terminal) — uniquement les dépendances racine (serveur), le client est déjà buildé en statique.
 6. `node server/db/init.js` une fois pour créer/peupler la base (ou laisser `db.migrate()` créer le schéma vide au premier démarrage).
 7. Démarrer/redémarrer l'app depuis cPanel.

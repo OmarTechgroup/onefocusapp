@@ -31,4 +31,6 @@ EXPOSE 3900
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD node -e "fetch('http://localhost:3900/api/health').then(r=>{if(!r.ok)throw new Error()}).catch(()=>process.exit(1))"
 
-CMD ["node", "server/index.js"]
+# --experimental-sqlite: node:sqlite (server/db/index.js) needs this flag on
+# Node 22.x — it's a harmless no-op on versions where it's unflagged by default.
+CMD ["node", "--experimental-sqlite", "server/index.js"]
