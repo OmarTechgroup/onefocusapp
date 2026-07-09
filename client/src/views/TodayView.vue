@@ -70,7 +70,7 @@ onMounted(() => {
 <template>
   <div class="today">
     <header class="today__greeting">
-      <h2> {{ greeting }}  Omar Niang <span class="today__wave">☀️ </span></h2>
+      <h2> {{ greeting }}  S.Omar Niang <span class="today__wave">☀️ </span></h2>
       <p class="today__sub">Prêt pour ta ONE Thing ?</p>
     </header>
 
