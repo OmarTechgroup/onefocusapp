@@ -15,7 +15,7 @@ OneFocus est un process Node unique (Express) qui sert aussi les fichiers statiq
    mkdir -p /opt/onefocus && cd /opt/onefocus
    ```
 2. Copie `docker-compose.yml` et `.env` (rempli à partir de `.env.example`) dans ce dossier. `.env` reste sur le serveur, jamais commité.
-3. Dans `docker-compose.yml`, remplace `ghcr.io/OWNER/REPO:latest` par ton dépôt GitHub réel (en minuscules), ex. `ghcr.io/adrien/onefocus:latest`.
+3. `docker-compose.yml` pointe déjà vers `ghcr.io/omartechgroup/onefocus:latest` — nom fixe (owner/onefocus), pas dérivé du nom du repo, car un nom d'image Docker ne peut pas commencer par un caractère spécial (le nom du repo GitHub commence par `-`).
 4. Si tu utilises `firebase-admin` via fichier de clé plutôt que la variable `FIREBASE_SERVICE_ACCOUNT_JSON`, monte-le en volume :
    ```yaml
    volumes:

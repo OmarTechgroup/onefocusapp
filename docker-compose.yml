@@ -4,9 +4,10 @@ services:
       context: .
       dockerfile: Dockerfile
     # Locally: `docker compose up --build` builds this and tags it with the name below.
-    # On the VPS: `docker compose pull` fetches the image CI already built and pushed —
-    # replace OWNER/REPO with your GitHub org/repo (see DEPLOY.md).
-    image: ghcr.io/OWNER/-OneFocus-app.git:latest
+    # On the VPS: `docker compose pull` fetches the image CI already built and pushed.
+    # Fixed name (owner/onefocus), not derived from the repo name — Docker image
+    # refs can't start with a special character, and this repo's name starts with "-".
+    image: ghcr.io/omartechgroup/onefocusapp:latest
     container_name: onefocus
     restart: unless-stopped
     ports:
