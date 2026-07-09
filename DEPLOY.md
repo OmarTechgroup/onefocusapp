@@ -6,16 +6,16 @@ OneFocus est un process Node unique (Express) qui sert aussi les fichiers statiq
 
 ### Prérequis sur le VPS
 - Docker + Docker Compose plugin installés
-- Un répertoire de déploiement, ex. `/opt/onefocus`
+- Un répertoire de déploiement, ex. `/opt/onefocusapp`
 
 ### Mise en place initiale (une fois)
 
 1. Sur le VPS :
    ```bash
-   mkdir -p /opt/onefocus && cd /opt/onefocus
+   mkdir -p /opt/onefocusapp && cd /opt/onefocusapp
    ```
-2. Copie `docker-compose.yml` et `.env` (rempli à partir de `.env.example`) dans ce dossier. `.env` reste sur le serveur, jamais commité.
-3. `docker-compose.yml` pointe déjà vers `ghcr.io/omartechgroup/onefocus:latest` — nom fixe (owner/onefocus), pas dérivé du nom du repo, car un nom d'image Docker ne peut pas commencer par un caractère spécial (le nom du repo GitHub commence par `-`).
+2. Copie `docker-compose.yml` (une première fois manuellement — ensuite le pipeline le resynchronise automatiquement à chaque déploiement, voir plus bas) et `.env` (rempli à partir de `.env.example`) dans ce dossier. `.env` reste sur le serveur, jamais commité, et n'est **pas** synchronisé par le pipeline.
+3. `docker-compose.yml` pointe vers `ghcr.io/omartechgroup/onefocusapp:latest` — nom fixe (owner/onefocusapp), pas dérivé du nom du repo, car un nom d'image Docker ne peut pas commencer par un caractère spécial (le nom du repo GitHub commence par `-`). **Ce nom doit rester identique** à celui calculé dans `.github/workflows/deploy.yml` (étape "Compute image name").
 4. Si tu utilises `firebase-admin` via fichier de clé plutôt que la variable `FIREBASE_SERVICE_ACCOUNT_JSON`, monte-le en volume :
    ```yaml
    volumes:
@@ -32,6 +32,10 @@ OneFocus est un process Node unique (Express) qui sert aussi les fichiers statiq
    docker compose exec app node server/db/init.js   # optionnel : données de démo
    ```
 
+### Synchronisation automatique
+
+Depuis `deploy.yml`, chaque déploiement recopie `docker-compose.yml` du repo vers le VPS (via `appleboy/scp-action`) avant `docker compose pull && up -d`. Donc toute modif de `docker-compose.yml` (nom d'image, volumes, ports…) poussée sur `main` est appliquée automatiquement au prochain déploiement — plus besoin de la recopier à la main après la mise en place initiale.
+
 ### Secrets GitHub à configurer (Settings → Secrets and variables → Actions)
 
 | Secret | Description |
@@ -40,14 +44,14 @@ OneFocus est un process Node unique (Express) qui sert aussi les fichiers statiq
 | `VPS_USER` | utilisateur SSH (avec accès Docker) |
 | `VPS_SSH_KEY` | clé privée SSH correspondante |
 | `VPS_PORT` | (optionnel) port SSH, 22 par défaut |
-| `VPS_PATH` | (optionnel) chemin du dossier de déploiement, `/opt/onefocus` par défaut |
+| `VPS_PATH` | (optionnel) chemin du dossier de déploiement, `/opt/onefocusapp` par défaut |
 
 `GITHUB_TOKEN` (fourni automatiquement par Actions) suffit pour pousser l'image sur GHCR — aucun secret supplémentaire requis pour le registre.
 
 ### Pipeline
 
 - **`.github/workflows/ci.yml`** — sur chaque push/PR : installe les dépendances serveur + client, lance les tests serveur, vérifie que le client build sans erreur.
-- **`.github/workflows/deploy.yml`** — après un CI réussi sur `main` : build l'image Docker, la pousse sur `ghcr.io/<owner>/<repo>`, puis se connecte en SSH au VPS pour `docker compose pull && docker compose up -d`.
+- **`.github/workflows/deploy.yml`** — après un CI réussi sur `main` : build l'image Docker, la pousse sur `ghcr.io/<owner>/onefocusapp`, resynchronise `docker-compose.yml` sur le VPS, puis se connecte en SSH pour `docker compose pull && docker compose up -d`.
 
 ### Build/test local avant de pousser
 
