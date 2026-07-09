@@ -62,7 +62,7 @@ jobs:
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
             set -e
-            cd "${{ secrets.VPS_PATH || '/opt/onefocus' }}"
+            cd "${{ secrets.VPS_PATH || '/opt/onefocusapp' }}"
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f
