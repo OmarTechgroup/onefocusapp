@@ -240,7 +240,7 @@ onBeforeRouteLeave((to, from, next) => {
 
 .focus__abandon {
   position: absolute;
-  top: calc(var(--space-4) + var(--safe-bottom, 0px));
+  top: calc(var(--space-4) + var(--safe-top, 0px));
   right: var(--space-4);
   width: 44px;
   height: 44px;
@@ -252,7 +252,7 @@ onBeforeRouteLeave((to, from, next) => {
 
 .focus__dnd {
   position: absolute;
-  top: calc(var(--space-4) + var(--safe-bottom, 0px));
+  top: calc(var(--space-4) + var(--safe-top, 0px));
   left: var(--space-4);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-full);

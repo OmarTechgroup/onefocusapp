@@ -104,7 +104,7 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
 
 .quote-full__close {
   position: absolute;
-  top: calc(var(--space-4) + var(--safe-bottom, 0px));
+  top: calc(var(--space-4) + var(--safe-top, 0px));
   right: var(--space-4);
   width: 44px;
   height: 44px;

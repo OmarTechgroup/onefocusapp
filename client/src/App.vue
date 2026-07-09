@@ -31,6 +31,7 @@ const showNav = computed(() => !route.meta.hideNav);
 }
 .shell__main {
   padding: var(--space-4);
+  padding-top: calc(var(--safe-top) + var(--space-5));
   max-width: 1100px;
   margin: 0 auto;
 }
@@ -58,6 +59,7 @@ const showNav = computed(() => !route.meta.hideNav);
   .shell__sidebar { display: flex; }
   .shell__main {
     padding: var(--space-6) var(--space-7);
+    padding-top: calc(var(--safe-top) + var(--space-6));
     max-width: 1400px;
   }
   .shell__main--with-bottom-nav { padding-bottom: var(--space-6); }
